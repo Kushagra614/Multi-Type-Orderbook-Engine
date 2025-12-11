@@ -1,5 +1,4 @@
 #include <bits/stdc++.h>
-
 using namespace std;
 
 enum class OrderType
@@ -61,6 +60,12 @@ public:
     Quantity GetRemainingQuantity() const { return remainingQuantity_; }
     Quantity GetFilledQuantity() const { return GetInitialQuantity() - GetRemainingQuantity(); }
 
+
+    bool isFilled() const
+    {
+        return GetRemainingQuantity() == 0;
+    }
+
     void Fill(Quantity quantity)
     {
         if (quantity > GetRemainingQuantity())
@@ -110,6 +115,152 @@ private:
     Price price_;
     Quantity quantity_;
 };
+
+//Now we will be working on the matching of the trades in the orderbook
+struct TradeInfo
+{
+    OrderId orderid_;
+    Price price_;
+    Quantity quantity_;
+};
+
+class Trade
+{
+    public:
+    Trade(const TradeInfo& BidTrade, const TradeInfo& AskTrade)
+    : bidTrade_ { BidTrade }
+    , askTrade_ { AskTrade }
+    { }
+
+    const TradeInfo& GetBidTrade() const {return bidTrade_; }
+    const TradeInfo& GetAskTrade() const {return askTrade_; }
+
+    private:
+    TradeInfo bidTrade_;
+    TradeInfo askTrade_;
+    
+};
+
+using Trades = vector<Trade>;
+
+class Orderbook
+{
+    private:
+    struct OrderEntry
+    {
+        OrderPointer order_ { nullptr };
+        OrderPointers::iterator location_;
+
+    };
+
+    map<Price, OrderPointers, greater<Price>> bids_;
+    map<Price, OrderPointers, less<Price>> asks_;
+    unordered_map<OrderId, OrderEntry> orders_;
+
+    //now logic for matching 
+    bool CanMatch(Side side, Price price) const
+    {
+        if(side == Side::BUY)
+        {
+            if(asks_.empty()) return false;
+
+            // it will only match if the buy price is greater or equal to the ask price
+            // finding the best ask price( lowest)
+            const auto& [bestAsk, _] = *asks_.begin();
+            return price >= bestAsk;  
+        }
+        else{
+            if(bids_.empty()) return false;
+            const auto [bestBid, _] = *bids_.begin();
+            return price <=  bestBid;
+         }
+        
+    }
+
+    Trades MatchOrders()
+    {
+        Trades trades;
+        trades.reserve(orders_.size());
+
+        while(true)
+        {
+            if(bids_.empty() || asks_.empty()) break;
+
+            // get the bid and ask values
+            auto& [bidPrice, bids]  = *bids_.begin();
+            auto& [askPrice, asks] = *asks_.begin();
+
+            if(bidPrice > askPrice) break;
+
+            while(bids.size() && asks.size())
+            {
+                auto& bid = bids.front();
+                auto& ask = asks.front();
+
+                //quant remaininig 
+                Quantity quantity = min(bid->GetRemainingQuantity(), ask->GetRemainingQuantity());
+
+                bid->Fill(quantity);
+                ask->Fill(quantity);
+
+                if(bid->isFilled())
+                {
+                    bids.pop_front();
+                    orders_.erase(bid->GetOrderId());
+                }
+
+                if(ask->isFilled())
+                {
+                    asks.pop_front();
+                    orders_.erase(ask->GetOrderId());
+                }
+
+                if(bids_.empty())
+                {
+                    bids_.erase(bidPrice);
+
+                }
+
+                if(asks_.empty())
+                {
+                    asks_.erase(askPrice);
+                }
+
+                trades.push_back(Trade{
+                    TradeInfo{bid->GetOrderId(), bid->GetPrice(), quantity },
+                    TradeInfo{ask->GetOrderId(), ask->GetPrice(), quantity }
+                });
+            }
+        }
+
+        //Now we will be removing the remaining quant of the FOK orders once it has been partially filled
+        if(bids_.empty())
+        {
+            //get the order-> bid
+            auto& [_, bids] = *bids_.begin();
+            auto& order = bids.front();
+            if(order->GetOrderType() == OrderType::FillAndKill)
+            {
+                CancelOrder(order->GetOrderId());
+            }
+                
+        }
+
+        if(asks_.empty())
+        {
+            //get the order-> bid
+            auto& [_, asks] = *asks_.begin();
+            auto& order = asks.front();
+            if(order->GetOrderType() == OrderType::FillAndKill)
+            {
+                CancelOrder(order->GetOrderId());
+            }
+                
+
+        }
+    }
+};
+
 int main()
 {
 
