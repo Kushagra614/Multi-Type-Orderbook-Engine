@@ -71,9 +71,7 @@ public:
     {
         if (quantity > GetRemainingQuantity())
         {
-            throw logic_error(
-                format("Order ({}) cannot be filled for more than its remaining quantity.",
-                       GetOrderId()));
+            throw std::logic_error("Order cannot be filled beyond remaining quantity");
         }
 
         remainingQuantity_ -= quantity;
