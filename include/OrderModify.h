@@ -1,24 +1,21 @@
 #pragma once
 
-#include<bits/stdc++.h>
-#include<Order.h>
-#include<Constants.h>
+#include "Order.h"
 
-using namespace std;
-
-class OrderModify
-{
+class OrderModify {
 public:
-    OrderModify(OrderId orderId, Side side, Price price, Quantity quantity);
-        
-    // writing the API calls
-    OrderId GetOrderId() const;
-    Side GetSide() const;
-    Price GetPrice() const;
-    Quantity GetQuantity() const;
+    OrderModify(OrderId id, Side side, Price price, Quantity qty)
+        : orderId_(id), side_(side), price_(price), quantity_(qty)
+    {}
 
-    OrderPointer ToOrderPointer(OrderType type) const;
-    
+    OrderId GetOrderId() const { return orderId_; }
+    Side GetSide() const { return side_; }
+    Price GetPrice() const { return price_; }
+    Quantity GetQuantity() const { return quantity_; }
+
+    OrderPointer ToOrderPointer(OrderType type) const {
+        return std::make_shared<Order>(type, orderId_, side_, price_, quantity_);
+    }
 
 private:
     OrderId orderId_;

@@ -1,6 +1,4 @@
 #include "Orderbook.h"
-
-#include "Orderbook.h"
 #include <numeric>   // for std::accumulate
 #include <algorithm> // for std::min
 

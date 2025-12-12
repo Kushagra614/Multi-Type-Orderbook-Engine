@@ -1,22 +1,26 @@
 #pragma once
 
-#include<bits/stdc++.h>
-#include<TradeInfo.h>
+#include "Usings.h"
+#include <vector>
 
-using namespace std;
-
-class Trade
-{
-    public:
-    Trade(const TradeInfo& BidTrade, const TradeInfo& AskTrade);
-    
-    const TradeInfo& GetBidTrade() const;
-    const TradeInfo& GetAskTrade() const;
-
-    private:
-    TradeInfo bidTrade_;
-    TradeInfo askTrade_;
-    
+struct TradeInfo {
+    OrderId orderid_;
+    Price price_;
+    Quantity quantity_;
 };
 
-using Trades = vector<Trade>;
+class Trade {
+public:
+    Trade(const TradeInfo& bid, const TradeInfo& ask)
+        : bid_(bid), ask_(ask)
+    {}
+
+    const TradeInfo& GetBidTrade() const { return bid_; }
+    const TradeInfo& GetAskTrade() const { return ask_; }
+
+private:
+    TradeInfo bid_;
+    TradeInfo ask_;
+};
+
+using Trades = std::vector<Trade>;

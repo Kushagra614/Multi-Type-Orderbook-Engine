@@ -1,7 +1,6 @@
 #pragma once
 
-enum class OrderType
-{
+enum class OrderType {
     GoodTillCancel,
     FillAndKill
 };

@@ -1,22 +1,17 @@
 #pragma once
 
-#include<bits/stdc++.h>
-#include<LevelInfo.h>
+#include "LevelInfo.h"
 
-using namespace std;
-
-class OrderbookLevelInfos
-{
+class OrderbookLevelInfos {
 public:
-    OrderbookLevelInfos(const LevelInfos &bids, const LevelInfos &asks);
-    
-    // Adding some public APIs
-    const LevelInfos &getBids() const;
-    const LevelInfos &getAsks() const;
+    OrderbookLevelInfos(const LevelInfos& bids, const LevelInfos& asks)
+        : bids_(bids), asks_(asks)
+    {}
+
+    const LevelInfos& getBids() const { return bids_; }
+    const LevelInfos& getAsks() const { return asks_; }
 
 private:
     LevelInfos bids_;
     LevelInfos asks_;
 };
-
-
