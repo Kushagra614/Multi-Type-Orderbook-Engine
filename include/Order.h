@@ -1,18 +1,17 @@
 #pragma once
 
-#include<bits/stdc++.h>
-#include<Constants.h>
-#include<Ordertype.h>
-#include<Side.h>
+#include <memory>  
+#include <list>
 
-using namespace std;
+#include "Constants.h"
+#include "Side.h"
+#include "OrderType.h"
 
 class Order
 {
 public:
     Order(OrderType orderType, OrderId orderId, Side side, Price price, Quantity quantity);
     
-
     OrderType GetOrderType() const;
     OrderId GetOrderId() const;
     Side GetSide() const;
@@ -36,6 +35,6 @@ private:
     Quantity remainingQuantity_;
 };
 
-using OrderPointer = shared_ptr<Order>;
-using OrderPointers = list<OrderPointer>;
+using OrderPointer = std::shared_ptr<Order>;
+using OrderPointers = std::list<OrderPointer>;
 
