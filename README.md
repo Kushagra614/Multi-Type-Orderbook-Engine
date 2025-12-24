@@ -2,54 +2,87 @@
 
 A high-performance C++ implementation of an order matching engine that supports multiple order types with a command-line interface. This implementation provides efficient price-time priority matching and real-time trade execution.
 
-## 🏷️ Supported Order Types
+## 🌟 Features
 
-- **GTC (Good Till Cancel) ⏳**
-  - Remains active in the order book until explicitly cancelled or filled
-  - Example: Buy 100 shares at $50 GTC
+### Supported Order Types
+- **GTC (Good Till Cancel)**: Remains active until cancelled or filled
+- **FAK (Fill and Kill)**: Fills partially or not at all
+- **FOK (Fill or Kill)**: Must fill completely or not at all
+- **GFD (Good For Day)**: Active until market close
+- **Market Order**: Executes immediately at best available price
 
-- **FAK (Fill and Kill) ⚡**
-  - Fills as much as possible at the specified price
-  - Cancels any unfilled portion immediately
-  - Example: Sell 50 shares at $100 FAK
+### Key Functionality
+- Real-time order matching
+- Order book visualization
+- Trade execution reports
+- Order modification and cancellation
 
-- **FOK (Fill or Kill) 💥**
-  - Must be filled completely at the specified price or better
-  - If not filled immediately, the entire order is cancelled
-  - No partial fills
+## 🖥️ Menu Interface
 
-- **GFD (Good For Day) 🌞**
-  - Active until the end of the trading day
-  - Automatically cancelled if not filled by market close
+### Main Menu
+```
+=== Multi-Type Orderbook ===
+1. Add New Order
+2. Cancel Order
+3. View Order Book
+4. View Trades
+5. View Active Orders
+6. Exit
 
-- **Market Order 🏪**
-  - Executes immediately at the best available price
-  - No price guarantee - fills at current market prices
-  - Highest execution priority
+Enter your choice (1-6): 
+```
 
-## 🚀 Features
+### Add Order Screen
+```
+=== Add New Order ===
+Order Type:
+1. GTC (Good Till Cancel)
+2. FAK (Fill and Kill)
+3. FOK (Fill or Kill)
+4. GFD (Good For Day)
+5. Market Order
 
-### Interactive Command-Line Interface
-- **User-friendly Menu** - Simple text-based interface for order management
-- **Real-time Order Book** - View current market depth with bids and asks
-- **Order Status** - Immediate feedback on order execution and trades
-
-### Order Book Display
-- **Price Levels** - Clear view of bid and ask prices with quantities
-- **Order Matching** - Visual feedback on executed trades
-- **Active Orders** - Track all open orders in the system
-
-### Order Management
-- **Add Orders** - Place new buy/sell orders with various order types
-- **Cancel Orders** - Remove existing orders by ID
-- **Trade Execution** - Automatic matching of compatible orders
+Select order type (1-5): 
+```
 
 ## 🛠️ Building and Running
 
+### Prerequisites
+- CMake 3.12 or higher
+- C++20 compatible compiler (GCC 10+, Clang 10+, MSVC 2019+)
+
+### Build Instructions
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/multi-type-orderbook.git
-cd multi-type-orderbook
+git clone https://github.com/Kushagra614/Multi-Type-Orderbook.git
+cd Multi-Type-Orderbook
+
+# Create build directory
+mkdir build
+cd build
+
+# Configure and build
+cmake ..
+make
+```
+
+### Running the Application
+```bash
+./OrderBook
+```
+
+## 📊 Order Book Display Example
+```
+=== Order Book ===
+Bids (Buy)            Asks (Sell)
+-------------------   -------------------
+Price    Qty          Price    Qty
+------   ------       ------   ------
+100.50   500          101.00   300
+100.25   300          101.25   200
+100.00   200          101.50   100
+```
+
 
 # Build the project
 g++ -std=c++20 -Iinclude src/Orderbook.cpp main.cpp -o orderbook_run
