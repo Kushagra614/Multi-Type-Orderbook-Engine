@@ -1,52 +1,78 @@
-# 📊 Multi-Type-Orderbook-Engine
+# 📊 Multi-Type Orderbook Engine
 
+A high-performance C++ implementation of an order matching engine that supports multiple order types with a command-line interface. This implementation provides efficient price-time priority matching and real-time trade execution.
 
-A high-performance, thread-safe C++ implementation of an order matching engine that supports both limit and market orders. This implementation provides efficient price-time priority matching, comprehensive order types, and real-time trade execution.
+## 🏷️ Supported Order Types
 
-## 🏷️ Order Types
-
-### Core Order Types
 - **GTC (Good Till Cancel) ⏳**
-  - Remains active in the order book until explicitly cancelled
-  - Default order type for most trading activities
+  - Remains active in the order book until explicitly cancelled or filled
   - Example: Buy 100 shares at $50 GTC
 
-- **IOC (Immediate or Cancel) ⚡**
-  - Executes immediately at the best available price
-  - Any unfilled portion is automatically cancelled
-  - Ideal for time-sensitive trades
+- **FAK (Fill and Kill) ⚡**
+  - Fills as much as possible at the specified price
+  - Cancels any unfilled portion immediately
+  - Example: Sell 50 shares at $100 FAK
 
 - **FOK (Fill or Kill) 💥**
-  - Must be filled in its entirety or cancelled
-  - No partial fills allowed
-  - Ensures complete execution or none at all
+  - Must be filled completely at the specified price or better
+  - If not filled immediately, the entire order is cancelled
+  - No partial fills
+
+- **GFD (Good For Day) 🌞**
+  - Active until the end of the trading day
+  - Automatically cancelled if not filled by market close
 
 - **Market Order 🏪**
   - Executes immediately at the best available price
-  - No price guarantee, fills at current market prices
-  - Highest priority in the matching engine
-
-- **Limit Order 🎯**
-  - Executes only at the specified price or better
-  - Can be partially filled across multiple price levels
-  - Provides price protection
+  - No price guarantee - fills at current market prices
+  - Highest execution priority
 
 ## 🚀 Features
 
-### Matching Engine
-- **Price-Time Priority** - Orders are matched based on price first, then time of entry
-- **Efficient Data Structures** - Uses optimized containers for fast order operations
-- **Real-time Execution** - Immediate trade generation and execution reports
+### Interactive Command-Line Interface
+- **User-friendly Menu** - Simple text-based interface for order management
+- **Real-time Order Book** - View current market depth with bids and asks
+- **Order Status** - Immediate feedback on order execution and trades
+
+### Order Book Display
+- **Price Levels** - Clear view of bid and ask prices with quantities
+- **Order Matching** - Visual feedback on executed trades
+- **Active Orders** - Track all open orders in the system
 
 ### Order Management
-- **Order Lifecycle** - Full support for order states (New, Partially Filled, Filled, Cancelled)
-- **Bulk Operations** - Batch order operations for improved performance
-- **Order Modification** - In-place order updates without losing priority
+- **Add Orders** - Place new buy/sell orders with various order types
+- **Cancel Orders** - Remove existing orders by ID
+- **Trade Execution** - Automatic matching of compatible orders
 
-### Performance
-- **Lock-free Design** - Minimized locking for high throughput
-- **Memory Efficient** - Low-latency memory management
-- **Scalable** - Handles high-frequency trading volumes
+## 🛠️ Building and Running
+
+```bash
+# Clone the repository
+git clone https://github.com/yourusername/multi-type-orderbook.git
+cd multi-type-orderbook
+
+# Build the project
+g++ -std=c++20 -Iinclude src/Orderbook.cpp main.cpp -o orderbook_run
+
+# Run the order book
+./orderbook_run
+```
+
+## 📋 Usage
+
+1. **Add Buy/Sell Order**
+   - Select order type (GTC, FAK, FOK, GFD, Market)
+   - Enter quantity and price (except for market orders)
+   - Order is processed and matched immediately
+
+2. **Cancel Order**
+   - Enter the order ID to cancel
+   - Immediate confirmation of cancellation
+
+3. **View Order Book**
+   - See current market depth
+   - View all active bids and asks
+   - Check total number of active orders
 
 ## 🛠️ Building from Source
 
