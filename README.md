@@ -132,14 +132,7 @@ make -j$(nproc)
 
 # Run the demo
 ./orderbook_demo
-
-## 📈 Next Steps
-- Explore the codebase and experiment with different order types
-- Run the test suite to verify functionality
-- Contribute by reporting issues or submitting pull requests
-- Check out the examples in the `examples/` directory
-
----
+```
 
 > "The stock market is a device for transferring money from the impatient to the patient." — Warren Buffett
 
