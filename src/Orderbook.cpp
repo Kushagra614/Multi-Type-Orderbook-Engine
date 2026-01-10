@@ -206,6 +206,24 @@ Trades Orderbook::MatchOrders()
 			bid->Fill(quantity);
 			ask->Fill(quantity);
 
+			// Handle FAK order partial fill
+			if (bid->GetOrderType() == OrderType::FillAndKill) {
+    			if (!bid->IsFilled()) {
+        			orders_.erase(bid->GetOrderId());
+        			bids.pop_front();
+        			break;
+    			}
+			}
+			if (ask->GetOrderType() == OrderType::FillAndKill) {
+    			if (!ask->IsFilled()) {
+        			orders_.erase(ask->GetOrderId());
+        			asks.pop_front();
+        			break;
+    			}
+			}
+
+
+
 			if (bid->IsFilled())
 			{
 				bids.pop_front();
@@ -271,53 +289,63 @@ Orderbook::~Orderbook()
 
 Trades Orderbook::AddOrder(OrderPointer order)
 {
-	std::scoped_lock ordersLock{ ordersMutex_ };
+    std::scoped_lock ordersLock{ ordersMutex_ };
 
-	if (orders_.contains(order->GetOrderId()))
-		return { };
+    if (orders_.contains(order->GetOrderId()))
+        return { };
 
-	if (order->GetOrderType() == OrderType::Market)
-	{
-		if (order->GetSide() == Side::Buy && !asks_.empty())
-		{
-			const auto& [worstAsk, _] = *asks_.rbegin();
-			order->ToGoodTillCancel(worstAsk);
-		}
-		else if (order->GetSide() == Side::Sell && !bids_.empty())
-		{
-			const auto& [worstBid, _] = *bids_.rbegin();
-			order->ToGoodTillCancel(worstBid);
-		}
-		else
-			return { };
-	}
+    if (order->GetOrderType() == OrderType::Market)
+    {
+        if (order->GetSide() == Side::Buy)
+        {
+            if (!asks_.empty()) {
+                // If there are sell orders, convert to limit order at worst ask price
+                const auto& [worstAsk, _] = *asks_.rbegin();
+                order->ToGoodTillCancel(worstAsk);
+            } else {
+                // If no sell orders, use max price (will match with lowest ask)
+                order->ToGoodTillCancel(std::numeric_limits<Price>::max());
+            }
+        }
+        else // Sell order
+        {
+            if (!bids_.empty()) {
+                // If there are buy orders, convert to limit order at worst bid price
+                const auto& [worstBid, _] = *bids_.rbegin();
+                order->ToGoodTillCancel(worstBid);
+            } else {
+                // If no buy orders, use min price (will match with highest bid)
+                order->ToGoodTillCancel(0);
+            }
+        }
+    }
 
-	if (order->GetOrderType() == OrderType::FillAndKill && !CanMatch(order->GetSide(), order->GetPrice()))
-		return { };
+    if (order->GetOrderType() == OrderType::FillAndKill && !CanMatch(order->GetSide(), order->GetPrice()))
+        return { };
 
-	if (order->GetOrderType() == OrderType::FillOrKill && !CanFullyFill(order->GetSide(), order->GetPrice(), order->GetInitialQuantity()))
-		return { };
+    if (order->GetOrderType() == OrderType::FillOrKill && !CanFullyFill(order->GetSide(), order->GetPrice(), order->GetInitialQuantity()))
+        return { };
 
-	OrderPointers::iterator iterator;
+    OrderPointers::iterator iterator;
 
-	if (order->GetSide() == Side::Buy)
-	{
-		auto& orders = bids_[order->GetPrice()];
-		orders.push_back(order);
-		iterator = std::prev(orders.end());
-	}
-	else
-	{
-		auto& orders = asks_[order->GetPrice()];
-		orders.push_back(order);
-		iterator = std::prev(orders.end());
-	}
+    if (order->GetSide() == Side::Buy)
+    {
+        auto& orders = bids_[order->GetPrice()];
+        orders.push_back(order);
+        iterator = std::prev(orders.end());
+    }
+    else
+    {
+        auto& orders = asks_[order->GetPrice()];
+        orders.push_back(order);
+        iterator = std::prev(orders.end());
+    }
 
-	orders_.insert({ order->GetOrderId(), OrderEntry{ order, iterator } });
-	
-	OnOrderAdded(order);
-	
-	return MatchOrders();
+    orders_.insert({ order->GetOrderId(), OrderEntry{ order, iterator } });
+    
+    OnOrderAdded(order);
+    
+    return MatchOrders();
 
 }
 
